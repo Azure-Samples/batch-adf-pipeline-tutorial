@@ -1,18 +1,16 @@
 # Load libraries
-from azure.storage.blob import BlockBlobService
+from azure.storage.blob import BlobClient
 import subprocess
 import sys
 import pandas as pd
 
 # Define parameters
-storageAccountName = "<storage-account-name>"
-storageKey         = "<storage-account-key>"
-containerName      = "output"
+connectionString = "<storage-account-connection-string>"
+containerName = "output"
+outputBlobName	= "iris_setosa.csv"
 
 # Establish connection with the blob storage account
-blobService = BlockBlobService(account_name=storageAccountName,
-                               account_key=storageKey
-                              )
+blob = BlobClient.from_connection_string(conn_str=connectionString, container_name=containerName, blob_name=outputBlobName)
 
 # Load iris dataset from the task node
 df = pd.read_csv("iris.csv")
@@ -21,7 +19,7 @@ df = pd.read_csv("iris.csv")
 df = df[df['Species'] == "setosa"]
 
 # Save the subset of the iris dataframe locally in task node
-df.to_csv("iris_setosa.csv", index = False)
+df.to_csv(outputBlobName, index = False)
 
-# Upload iris dataset
-blobService.create_blob_from_text(containerName, "iris_setosa.csv", "iris_setosa.csv")
+with open(outputBlobName, "rb") as data:
+    blob.upload_blob(data)
