@@ -1,7 +1,5 @@
 # Load libraries
 from azure.storage.blob import BlobClient
-import subprocess
-import sys
 import pandas as pd
 
 # Define parameters
